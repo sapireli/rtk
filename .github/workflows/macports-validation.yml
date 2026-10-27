@@ -1,0 +1,20 @@
+name: MacPorts contribution validation
+on:
+  push:
+    branches: [validate/macports-source-updater]
+permissions:
+  contents: read
+jobs:
+  required-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: python3 -m unittest discover -s scripts/tests -p test_update_macports.py
+      - run: cargo fmt --all --check
+      - run: cargo clippy --all-targets
+      - run: cargo test
